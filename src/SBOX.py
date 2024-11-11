@@ -46,6 +46,9 @@ class SBOX:
         yPos = (byte & 0x0f)       
         return self.I_S_BOX[xPos][yPos]
     
+    def list_Sub(self,list):        
+        return f'{self._sSub(int(list, 16)):02X}'  # Format as hex    
+               
     def sSub(self,matrix):               
         # Initialize the output matrix in hex format
         sSub_Values = np.empty_like(matrix, dtype=object)  # Use dtype=object to store hex strings
