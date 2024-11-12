@@ -134,7 +134,7 @@ class Encryption:
         Returns:
             list: New word generated for the key schedule.
         """
-        # Rcon values
+        # Rcon values its just start from 1 and multiply by 2 each time               
         Rcon = [
             [0x01, 0x00, 0x00, 0x00],
             [0x02, 0x00, 0x00, 0x00],
@@ -146,33 +146,78 @@ class Encryption:
             [0x80, 0x00, 0x00, 0x00],
             [0x1B, 0x00, 0x00, 0x00],
             [0x36, 0x00, 0x00, 0x00],
-        ]          
-        new_word = []        
-        for i in range(len(W),0,-1):            
-            new_word.append(self.sbox.list_Sub(W[i-1]))
+            [0x6C, 0x00, 0x00, 0x00],
+            [0xD8, 0x00, 0x00, 0x00],
+            [0xAB, 0x00, 0x00, 0x00],
+            [0x4D, 0x00, 0x00, 0x00],
+            [0x9A, 0x00, 0x00, 0x00]
+        ]
+        
+        new_word = [W[1],W[2],W[3],W[0]]        
+                                                     
+        for i in range(len(new_word)):
+            new_word[i] = self.sbox.list_Sub(new_word[i])                                                                                  
         return self.xor(Rcon[round],new_word,mode='Rcon')
                     
-    def key_generation(self,key_matrix,round=0):
-        """Generates the round keys for AES encryption.
+    def key_generation(self,word,round):  
+        """
+        Generates four words for the current round key based on the previous round's words.
         
         Parameters:
-            key_matrix (list): A 4x4 matrix of hexadecimal values representing the initial key.
+            previous_words (list): List of the four words from the previous round.
             round (int): Current round number for generating the appropriate round key.
         
         Returns:
-            list: Updated list of round keys for AES encryption.
-        """        
-        #while round < self.key_rounds:                                     
+            list: A list containing four words (lists of bytes) for the current round key.
+        """                        
+        result = []        
+        W4 = self.xor(word[0],self.generation_factor(word[3],round),mode='flat')
+        result.append(W4) 
+         
+        for i in range(1,4):
+            Wi = self.xor(self.words[i],result[i-1],mode='flat')
+            result.append(Wi)                               
+        return result
+                 
+    def key_generation_setup(self,key_matrix): 
+        """
+        Initializes the first four words (W0, W1, W2, W3) from the initial key matrix.
+        
+        Parameters:
+            key_matrix (list): A 4x4 matrix of hexadecimal values representing the initial key.
+        """                                         
         for i in range(len(key_matrix)):   
             word = []            
             for row in range(len(key_matrix)):                            
                 word.append(key_matrix[row][i])                       
-            self.words.append(word)  
-        g_factor = self.generation_factor(self.words[len(key_matrix)-1],round)        
-        result = self.xor(self.words[0],g_factor,mode='flat') 
-        print(result)                    
-        return self.keys              
-                                                  
+            self.words.append(word) 
+            
+    def key_expansion(self,key_matrix,round=0):
+        """
+        Generates the full round keys for AES encryption.
+        
+        Parameters:
+            key_matrix (list): A 4x4 matrix of hexadecimal values representing the initial key.
+        
+        Returns:
+            list: List of round keys for AES encryption.
+        """
+        self.key_generation_setup(key_matrix)
+        round = 0
+        
+        # Start with initial key
+        self.keys.append(self.words[:4])  # W0, W1, W2, W3 as the first round key
+        
+        # Generate remaining keys for all rounds
+        for _ in range(self.key_rounds):
+            # Generate the next 4 words based on the last 4 words in self.words
+            new_words = self.key_generation(self.words[-4:], round)                       
+            self.words.extend(new_words)  # Add the new words to the list
+            self.keys.append(new_words)   # Add the new round key to keys
+            round += 1
+        
+        return self.keys             
+                                                            
     def xor(self, M1, M2,mode ='matrix'):
         """Perform element-wise XOR operation between two matrices or lists.
     
@@ -207,4 +252,7 @@ class Encryption:
 aes = Encryption()
 val, val2 = aes.to_hex("Two One Nine Two", "Thats my Kung Fu")
 matrix, matrix2= aes.hex_to_matrix(val,val2)
-print(aes.key_generation(matrix2))
+keys = aes.key_expansion(matrix2)
+
+for key in keys:
+    print(key)
