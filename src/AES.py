@@ -18,8 +18,8 @@ class Encryption:
         self.sbox = SBOX()
         self.words = [] 
         self.keys = []
-        self.key_rounds = {128:10, 192:12, 256:14}[key_size] 
-        self.keys.append("to be added")       
+        self.key_rounds = {128:10, 192:12, 256:14}[key_size]               
+    
     def to_hex(self ,*args):
         """Convert data into hexadecimal format.
         
@@ -117,94 +117,55 @@ class Encryption:
             count = 0
             matrix = [['00' for _ in range(4)] for _ in range(4)]                    
             for i in range(4):
-                for j in range(4):
-                    
+                for j in range(4):                    
                     matrix[j][i] = item[count]
                     count+=1
             segments.append(np.array(matrix))
-        return segments    
-    def generation_factor(self,W,round):
-        """
-        Generates a new word for the key schedule based on the AES key expansion algorithm.
-        
-        Parameters:
-            W (list): A word from the key schedule.
-            round (int): Current round number to access the corresponding Rcon value.
-        
-        Returns:
-            list: New word generated for the key schedule.
-        """
-        # Rcon values
-        Rcon = [
-            [0x01, 0x00, 0x00, 0x00],
-            [0x02, 0x00, 0x00, 0x00],
-            [0x04, 0x00, 0x00, 0x00],
-            [0x08, 0x00, 0x00, 0x00],
-            [0x10, 0x00, 0x00, 0x00],
-            [0x20, 0x00, 0x00, 0x00],
-            [0x40, 0x00, 0x00, 0x00],
-            [0x80, 0x00, 0x00, 0x00],
-            [0x1B, 0x00, 0x00, 0x00],
-            [0x36, 0x00, 0x00, 0x00],
-        ]          
-        new_word = []        
-        for i in range(len(W),0,-1):            
-            new_word.append(self.sbox.list_Sub(W[i-1]))
-        return self.xor(Rcon[round],new_word,mode='Rcon')
-                    
-    def key_generation(self,key_matrix,round=0):
-        """Generates the round keys for AES encryption.
-        
-        Parameters:
-            key_matrix (list): A 4x4 matrix of hexadecimal values representing the initial key.
-            round (int): Current round number for generating the appropriate round key.
-        
-        Returns:
-            list: Updated list of round keys for AES encryption.
-        """        
-        #while round < self.key_rounds:                                     
-        for i in range(len(key_matrix)):   
-            word = []            
-            for row in range(len(key_matrix)):                            
-                word.append(key_matrix[row][i])                       
-            self.words.append(word)  
-        g_factor = self.generation_factor(self.words[len(key_matrix)-1],round)        
-        result = self.xor(self.words[0],g_factor,mode='flat') 
-        print(result)                    
-        return self.keys              
-                                                  
-    def xor(self, M1, M2,mode ='matrix'):
-        """Perform element-wise XOR operation between two matrices or lists.
+        return segments 
+                        
+    def round_keys(self,M1,M2):
+        return np.array(self.KeyGen.xor(M1,M2)).reshape(4,4)
     
-        Parameters:
-            M1 (list or np.array): The first matrix or list for XOR.
-            M2 (list or np.array): The second matrix or list for XOR.
-            mode (str): Specifies the type of XOR operation ('Rcon', 'flat', 'matrix').
-            
-        Returns:
-            list: A list of results from the XOR operation.
-        """
-        result = [] 
-        if mode =='Rcon':            
-            for i in range(4):  
-                val1 = M1[i]
-                val2 = int(M2[i],16)          
-                result.append(f'{val1 ^ val2:02X}')    
-        elif mode == 'flat':  
-            for i in range(4):  
-                val1 = int(M1[i],16)
-                val2 = int(M2[i],16)          
-                result.append(f'{val1 ^ val2:02X}')          
-        elif mode == 'matrix':                            
-            for row in range(len(M1)):            
-                for col in range(len(M2)):
-                    val1 = int(M1[row][col],16)
-                    val2 = int(M2[row][col],16)                       
-                    result.append(f'{val1 ^ val2:02X}')
-        else:
-            raise ValueError("Invalid mode. Expected 'Rcon', 'flat', or 'Matrix'.")
-        return result                 
+    def shift_rows(self, matrix):        
+        result_matrix = []
+        for row in range(matrix.shape[0]):
+            shift_val = row % matrix.shape[1]  
+            shifted_row = np.roll(matrix[row], -shift_val)
+            result_matrix.append(shifted_row)
+        result_matrix = np.array(result_matrix)
+        return result_matrix
+         
+    def mix_cols(self,matrix):
+        columns_matrix = [
+            [0x02, 0x03, 0x01, 0x01],
+            [0x01, 0x02, 0x03, 0x01],
+            [0x01, 0x01, 0x02, 0x03],
+            [0x03, 0x01, 0x01, 0x02]
+        ]                
+        GF_mult = []
+        for i in range(len(matrix)):  
+            GF_row = []                       
+            for row in range(len(matrix)):                                            
+                result = self.galois_field(matrix[row][i],columns_matrix[row][i])
+                GF_row.append(result)
+                print(GF_mult) 
+            GF_mult.append(GF_row)                                
+        
+        return matrix
+    def galois_field(self,a,b):
+        
+        pass    
+             
+    def Encryption(self,plaintext,key):
+        val, val2 = aes.to_hex(plaintext, key)
+        matrix, matrix2= aes.hex_to_matrix(val,val2)        
+        keys = self.KeyGen.key_expansion(matrix2)
+        #for i in range(self.key_rounds):
+        key_round = self.round_keys(matrix,keys[0]) 
+        subMatrix = self.sbox.matrix_Sub(key_round) 
+        shift_rows = self.shift_rows(subMatrix)         
+        mix_col = self.mix_cols(shift_rows) 
+        matrix = mix_col
+                                                                           
 aes = Encryption()
-val, val2 = aes.to_hex("Two One Nine Two", "Thats my Kung Fu")
-matrix, matrix2= aes.hex_to_matrix(val,val2)
-print(aes.key_generation(matrix2))
+aes.Encryption("Two One Nine Two","Thats my Kung Fu")
