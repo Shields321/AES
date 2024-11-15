@@ -1,6 +1,13 @@
 import numpy as np
 class SBOX:
-    def __init__(self):
+    def __init__(self):                
+        self.relational_sBox = np.zeros((16, 16), dtype=int)        
+        hex_val = 0x00
+        for i in range(self.relational_sBox.shape[0]):
+            for j in range(self.relational_sBox.shape[1]):        
+                self.relational_sBox[i][j] = hex_val         
+                hex_val +=1 
+                
         self.S_BOX = [
             [0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76],
             [0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0],
@@ -37,35 +44,22 @@ class SBOX:
             [0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61],
             [0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d]        
         ]
-    def _sSub(self,byte):        
-        xPos = (byte & 0xf0) >> 4
-        yPos = (byte & 0x0f)       
-        return self.S_BOX[xPos][yPos]
-    def _ISSub(self,byte):
-        xPos = (byte >> 4) & 0x0f
-        yPos = (byte & 0x0f)       
-        return self.I_S_BOX[xPos][yPos]
+    def _sSub(self,byte):
+        for i in range(self.relational_sBox.shape[0]):
+            for j in range(self.relational_sBox.shape[1]):                
+                hexV = hex(self.relational_sBox[i][j])                                              
+                if byte == hexV.upper():                                         
+                    return self.S_BOX[i][j] 
+                
+    def byte_Sub(self,byte):                       
+        return hex(self._sSub(byte))       
     
-    def list_Sub(self,list):        
-        return f'{self._sSub(int(list, 16)):02X}'  # Format as hex    
-               
-    def sSub(self,matrix):               
-        # Initialize the output matrix in hex format
-        sSub_Values = np.empty_like(matrix, dtype=object)  # Use dtype=object to store hex strings
-        for row in range(matrix.shape[0]):
-            for col in range(matrix.shape[1]):
-                # Perform S-box substitution and format to hex
-                sSub_Values[row][col] = f'{self._sSub(int(matrix[row][col], 16)):02x}'  # Format as hex                
-        return sSub_Values
-    def ISSub(self, matrix):
-        # Initialize the output matrix in hex format
-        ISSub_Values = np.empty_like(matrix, dtype=object)  # Use dtype=object to store hex strings
-        for row in range(matrix.shape[0]):
-            for col in range(matrix.shape[1]):
-                # Perform inverse S-box substitution and format to hex
-                ISSub_Values[row][col] = f'{self._ISSub(int(matrix[row][col], 16)):02x}'  # Format as hex                
-        return ISSub_Values
-
+    def matrix_Sub(self,matrix):
+        result = []
+        for i in range(matrix.shape[0]):
+            for j in range(matrix.shape[1]):
+                result.append(hex(self._sSub(matrix[i][j])).upper())
+        return np.array(result).reshape(4,4)
                 
         
     
