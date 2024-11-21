@@ -1,11 +1,11 @@
 from SBOX import SBOX
 import numpy as np
 class Key_Expansion:
-    def __init__(self, key_size=128):
+    def __init__(self, key_size):
         self.sbox = SBOX()        
         self.words = []
         self.keys = []
-        self.key_rounds = {128:10, 192:12, 256:14}[key_size]
+        self.key_rounds = key_size
     def generation_factor(self,W,round):
         """
         Generates a new word for the key schedule based on the AES key expansion algorithm.

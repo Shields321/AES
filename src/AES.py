@@ -2,12 +2,12 @@ from SBOX import SBOX
 from Key_Expansion import Key_Expansion
 import numpy as np
 class Encryption:    
-    def __init__(self,key_size=128):
+    def __init__(self,AESMODE=128):
         """
         Initialize the Encryption class with the provided key size, S-box, and default round settings.
         
         Parameters:
-            key_size (int): The size of the encryption key in bits. Supported values are 128, 192, or 256.
+            AESMODE (int): The size of the encryption key in bits. Supported values are 128, 192, or 256.
                             Determines the number of rounds used for encryption.
         
         Attributes:
@@ -16,11 +16,11 @@ class Encryption:
             keys (list): Contains the round keys generated during key expansion.
             key_rounds (int): Number of rounds for AES encryption based on the key size.
         """
-        self.sbox = SBOX() 
-        self.KeyGen = Key_Expansion()       
+        self.sbox = SBOX()             
         self.words = [] 
         self.keys = []
-        self.key_rounds = {128:10, 192:12, 256:14}[key_size] 
+        self.key_rounds = {128:10, 192:12, 256:14}[AESMODE] 
+        self.KeyGen = Key_Expansion(key_size=self.key_rounds)   
         self.keys.append("to be added")       
     
     def to_hex(self ,*args):
@@ -127,7 +127,7 @@ class Encryption:
             segments.append(np.array(matrix))
         return segments 
                         
-    def round_keys(self,M1,M2):
+    def add_round_keys(self,M1,M2):
         return np.array(self.KeyGen.xor(M1,M2)).reshape(4,4)
     def shift_rows(self, matrix):
         result_matrix = []
@@ -172,17 +172,26 @@ class Encryption:
     def Encryption(self,plaintext,key):
         val, val2 = aes.to_hex(plaintext, key)
         matrix, matrix2= aes.hex_to_matrix(val,val2)        
-        keys = self.KeyGen.key_expansion(matrix2)
-        #for i in range(self.key_rounds):
-        key_round = self.round_keys(matrix,keys[0]) 
-        subMatrix = self.sbox.matrix_Sub(key_round) 
-        shift_rows = self.shift_rows(subMatrix)         
-        mix_col = self.mix_cols(shift_rows) 
-        
-                                                                 
-               
-aes = Encryption()
+        keys = self.KeyGen.key_expansion(matrix2)                               
+        # Initial key round addition
+        matrix = self.add_round_keys(matrix, keys[0])  # First round key addition        
+        # Loop through all the rounds
+        for i in range(1, self.key_rounds):  
+            subMatrix = self.sbox.matrix_Sub(matrix)  # Apply SubBytes                        
+            shift_rows = self.shift_rows(subMatrix)  # Apply ShiftRows                        
+            if i != self.key_rounds:  # Only apply MixColumns in intermediate rounds
+                mix_col = self.mix_cols(shift_rows)  # Apply MixColumns                
+            else:                
+                mix_col = shift_rows  # Skip MixColumns in the final round                            
+            # Add the round key at the end of each round (except for the final round)
+            matrix = self.add_round_keys(mix_col, keys[i])  # Use the i-th round key from expanded key schedule            
+        # Final round (no MixColumns)
+        subMatrix = self.sbox.matrix_Sub(matrix)  # Apply SubBytes
+        shift_rows = self.shift_rows(subMatrix)  # Apply ShiftRows
+        cipher_text = self.add_round_keys(shift_rows, keys[self.key_rounds])  # Final AddRoundKey
+
+        print('final ciphertext')
+        print(cipher_text)
+                                                                                
+aes = Encryption(AESMODE=128)
 aes.Encryption("Two One Nine Two","Thats my Kung Fu")
-
-
-
