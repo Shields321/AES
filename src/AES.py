@@ -136,20 +136,39 @@ class Encryption:
             shifted_row = np.roll(matrix[row], -shift_val)
             result_matrix.append(shifted_row)
         result_matrix = np.array(result_matrix)
-        return result_matrix     
+        return result_matrix    
+     
     def mix_cols(self,matrix):
         columns_matrix = [
             [0x02, 0x03, 0x01, 0x01],
             [0x01, 0x02, 0x03, 0x01],
             [0x01, 0x01, 0x02, 0x03],
             [0x03, 0x01, 0x01, 0x02]
-        ]                
-                                  
+        ]    
+        result_matrix = []            
+        # Matrix multiplication in GF(2^8)
+        for i in range(4):  # Iterate over columns of `matrix1`
+            result_row = []
+            for j in range(4):  # Iterate over rows of `columns_matrix`
+                element = 0
+                for k in range(4):  # Compute the dot product in GF(2^8)
+                    element ^= self.galois_multiply(matrix[k][i], columns_matrix[j][k])
+                result_row.append(hex(element))
+            result_matrix.append(result_row)                         
         
-        return matrix
-    def galois_field(self,a,b):
+        return np.array(result_matrix).T
+    def galois_multiply(self,a,b,modulus=0x11B):    
+        result = 0         
+        a = int(a,16)
+        for _ in range(8):
+            if bin(b)[-1] == '1':
+                result ^= a
+            a = a*2
+            if a >= 256:
+                a ^= modulus
+            b = b//2
+        return result                                
         
-        pass      
     def Encryption(self,plaintext,key):
         val, val2 = aes.to_hex(plaintext, key)
         matrix, matrix2= aes.hex_to_matrix(val,val2)        
@@ -159,7 +178,7 @@ class Encryption:
         subMatrix = self.sbox.matrix_Sub(key_round) 
         shift_rows = self.shift_rows(subMatrix)         
         mix_col = self.mix_cols(shift_rows) 
-        matrix = mix_col 
+        
                                                                  
                
 aes = Encryption()
