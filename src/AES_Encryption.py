@@ -87,7 +87,5 @@ class Encryption:
         subMatrix = self.sbox.matrix_Sub(matrix)  # Apply SubBytes
         shift_rows = self.shift_rows(subMatrix)  # Apply ShiftRows
         cipher_text = self.add_round_keys(shift_rows, keys[self.key_rounds])  # Final AddRoundKey
-
-        print('Encrypted text')
-        print(cipher_text)    
+           
         return cipher_text                                                                                    

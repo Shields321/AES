@@ -22,5 +22,5 @@ class Decryption():
             matrix, matrix2 = self.functions.hex_to_matrix(cypherText,key) 
             keys = self.key_exp.key_expansion(matrix2)  
         except Exception as e:
-            print('Decryption not completed yet')
+            print('Decryption not completed yet defaulting to printing Encrypted text')
             return cypherText        
