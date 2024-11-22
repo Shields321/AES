@@ -26,6 +26,7 @@ class Encryption:
                         
     def add_round_keys(self,M1,M2):
         return np.array(self.KeyGen.xor(M1,M2)).reshape(4,4)
+    
     def shift_rows(self, matrix):
         result_matrix = []
         for row in range(matrix.shape[0]):
@@ -33,7 +34,8 @@ class Encryption:
             shifted_row = np.roll(matrix[row], -shift_val)
             result_matrix.append(shifted_row)
         result_matrix = np.array(result_matrix)
-        return result_matrix         
+        return result_matrix 
+            
     def mix_cols(self,matrix):
         columns_matrix = [
             [0x02, 0x03, 0x01, 0x01],
@@ -52,6 +54,7 @@ class Encryption:
                 result_row.append(hex(element))
             result_matrix.append(result_row)                                 
         return np.array(result_matrix).T
+    
     def galois_multiply(self,a,b,modulus=0x11B):    
         result = 0         
         a = int(a,16)
@@ -62,7 +65,8 @@ class Encryption:
             if a >= 256:
                 a ^= modulus
             b = b//2 #left shift
-        return result                                        
+        return result     
+                                       
     def Encryption(self,plaintext,key):
         val, val2 = self.functions.to_hex(plaintext, key)
         matrix, matrix2= self.functions.hex_to_matrix(val,val2)        
@@ -84,5 +88,6 @@ class Encryption:
         shift_rows = self.shift_rows(subMatrix)  # Apply ShiftRows
         cipher_text = self.add_round_keys(shift_rows, keys[self.key_rounds])  # Final AddRoundKey
 
-        print('final ciphertext')
-        print(cipher_text)                                                                                        
+        print('Encrypted text')
+        print(cipher_text)    
+        return cipher_text                                                                                    

@@ -1,7 +1,12 @@
 from SBOX import SBOX
 import numpy as np
 class Key_Expansion:
-    def __init__(self, key_size):
+    def __init__(self, key_size=10):
+        """defaulted to AES 128
+
+        Args:
+            key_size (int, optional): _description_. Defaults to 10 for AES-128.
+        """
         self.sbox = SBOX()        
         self.words = []
         self.keys = []

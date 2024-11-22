@@ -104,3 +104,5 @@ class basic_functions():
                     count+=1
             segments.append(np.array(matrix))
         return segments
+    def to_text(self ,*args):
+        pass
