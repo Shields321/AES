@@ -50,7 +50,12 @@ class SBOX:
                 hexV = hex(self.relational_sBox[i][j])                                              
                 if byte == hexV.upper():                                         
                     return self.S_BOX[i][j] 
-                
+    def _InvSub(self,byte):
+        for i in range(self.relational_sBox.shape[0]):
+            for j in range(self.relational_sBox.shape[1]):                
+                hexV = hex(self.relational_sBox[i][j])                                              
+                if byte == hexV.upper():                                         
+                    return self.I_S_BOX[i][j]              
     def byte_Sub(self,byte):                       
         return hex(self._sSub(byte))       
     
@@ -60,6 +65,14 @@ class SBOX:
             for j in range(matrix.shape[1]):
                 result.append(hex(self._sSub(matrix[i][j])).upper())
         return np.array(result).reshape(4,4)
+    
+    def inv_matrix_sub(self,matrix):
+        result = []
+        for i in range(matrix.shape[0]):
+            for j in range(matrix.shape[1]):
+                result.append(hex(self._InvSub(matrix[i][j])).upper())
+        return np.array(result).reshape(4,4) 
+        pass
                 
         
     

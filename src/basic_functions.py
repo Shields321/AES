@@ -1,6 +1,7 @@
 import numpy as np
 class basic_functions():
-    def __init__(self) -> None:
+    def __init__(self,mode = "encrypt") -> None:
+        self.mode = mode
         pass
     
     def is_hex(self,value):                                 
@@ -35,12 +36,11 @@ class basic_functions():
             elif isinstance(item, bytearray):  # If the input is bytearray
                 segment = [hex(byte).upper() for byte in item]  # Convert each byte to hex
             else:
-                raise ValueError("Unsupported data type. Expected string, integer, bytes, or bytearray.")  
-            print(f"seg {segment}")          
-            segments.append(segment)  # Add each segment to the list of segments             
-            if len(segments) == len(args):                
-                print(f"seg after {segments}")
-                return segments                       
+                raise ValueError("Unsupported data type. Expected string, integer, bytes, or bytearray.")              
+            if len(args) == 1 and self.mode == 'decrypt':                                
+                return segment         
+            segments.append(segment)  # Add each segment to the list of segments    
+        return segments                                          
     def padding(self,hex_data):
         """Pads a list of hexadecimal data to 16 bytes if required.
         
@@ -108,7 +108,9 @@ class basic_functions():
             for i in range(4):
                 for j in range(4):                                      
                     matrix[j][i] = item[count]
-                    count+=1                                   
+                    count+=1  
+            if len(args) == 1 and self.mode == 'decrypt':                                
+                return np.array(matrix)                                    
             segments.append(np.array(matrix))            
         return segments
     def to_text(self ,*args):

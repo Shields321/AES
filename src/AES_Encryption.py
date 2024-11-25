@@ -69,7 +69,7 @@ class Encryption:
                                        
     def Encryption(self,plaintext,key):
         val, val2 = self.functions.to_hex(plaintext, key)
-        matrix, matrix2= self.functions.hex_to_matrix(val,val2)        
+        matrix, matrix2= self.functions.hex_to_matrix(val,val2)            
         keys = self.KeyGen.key_expansion(matrix2)                               
         # Initial key round addition
         matrix = self.add_round_keys(matrix, keys[0])  # First round key addition        

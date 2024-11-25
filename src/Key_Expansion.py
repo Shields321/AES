@@ -57,7 +57,7 @@ class Key_Expansion:
         Returns:
             list: A list containing four words (lists of bytes) for the current round key.
         """                        
-        result = []        
+        result = []                       
         W4 = self.xor(word[0],self.generation_factor(word[3],round),mode='flat')
         result.append(W4) 
          
@@ -143,7 +143,7 @@ class Key_Expansion:
         elif mode == 'matrix':                            
             for row in range(len(M1)):            
                 for col in range(len(M2)):
-                    val1 = int(M1[row][col],16)
+                    val1 = int(M1[row][col],16)                    
                     val2 = int(M2[row][col],16)                       
                     result.append(hex(val1 ^ val2).upper())            
         else:
