@@ -2,6 +2,16 @@ import numpy as np
 class basic_functions():
     def __init__(self) -> None:
         pass
+    
+    def is_hex(self,value):                                 
+        if isinstance(value, str):
+            # Try to interpret the string as a hexadecimal number
+            try:
+                int(value, 16)
+                return True
+            except ValueError:
+                return False
+        return False
     def to_hex(self ,*args):
         """Convert data into hexadecimal format.
         
@@ -25,9 +35,12 @@ class basic_functions():
             elif isinstance(item, bytearray):  # If the input is bytearray
                 segment = [hex(byte).upper() for byte in item]  # Convert each byte to hex
             else:
-                raise ValueError("Unsupported data type. Expected string, integer, bytes, or bytearray.")            
-            segments.append(segment)  # Add each segment to the list of segments        
-        return segments
+                raise ValueError("Unsupported data type. Expected string, integer, bytes, or bytearray.")  
+            print(f"seg {segment}")          
+            segments.append(segment)  # Add each segment to the list of segments             
+            if len(segments) == len(args):                
+                print(f"seg after {segments}")
+                return segments                       
     def padding(self,hex_data):
         """Pads a list of hexadecimal data to 16 bytes if required.
         
@@ -89,20 +102,14 @@ class basic_functions():
             list: A 4x4 matrix (list of lists) containing the hexadecimal values for encryption purposes.
         """                     
         segments = []              
-        for item in args:  
-            #make it so that the padding and overflow still get converted to a matrix form after           
-            if len(item) < 16:                
-                self.padding(item)
-            elif len(item) > 16:                 
-                self.overflow(item)
+        for item in args:                         
             count = 0
             matrix = [['00' for _ in range(4)] for _ in range(4)]                    
             for i in range(4):
-                for j in range(4):
-                    
+                for j in range(4):                                      
                     matrix[j][i] = item[count]
-                    count+=1
-            segments.append(np.array(matrix))
+                    count+=1                                   
+            segments.append(np.array(matrix))            
         return segments
     def to_text(self ,*args):
         pass

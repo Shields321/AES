@@ -18,9 +18,22 @@ class Decryption():
     def invMixCols(self):
         pass     
     def Decryption(self,cypherText,key):
-        try:
-            matrix, matrix2 = self.functions.hex_to_matrix(cypherText,key) 
-            keys = self.key_exp.key_expansion(matrix2)  
-        except Exception as e:
+        #try:        
+        if isinstance(cypherText,np.ndarray):
+            matrix = cypherText 
+        elif not self.functions.is_hex(cypherText):
+            print("\n")
+            print(f"cyphertext{cypherText}")
+            val = self.functions.to_hex(cypherText)                          
+            matrix = self.functions.hex_to_matrix(val)                  
+        if isinstance(key,np.ndarray):
+            matrix2 = key             
+        elif not self.functions.is_hex(key):                        
+            val2 = self.functions.to_hex(key)  
+            print(type(val2))                                       
+            matrix2 = self.functions.hex_to_matrix(val2)                                                                                                                            
+        keys = self.key_exp.key_expansion(matrix2)              
+        """except Exception as e:
+            print(e)
             print('Decryption not completed yet defaulting to printing Encrypted text')
-            return cypherText        
+            return cypherText   """   
