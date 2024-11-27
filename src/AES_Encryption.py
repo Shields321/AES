@@ -70,22 +70,22 @@ class Encryption:
     def Encryption(self,plaintext,key):
         val, val2 = self.functions.to_hex(plaintext, key)
         matrix, matrix2= self.functions.hex_to_matrix(val,val2)            
-        keys = self.KeyGen.key_expansion(matrix2)                               
+        keys = self.KeyGen.key_expansion(matrix2)    
+        print("original matrix")
+        print(matrix)                           
         # Initial key round addition
-        matrix = self.add_round_keys(matrix, keys[0])  # First round key addition        
+        state = self.add_round_keys(matrix, keys[0])  # First round key addition                        
         # Loop through all the rounds
         for i in range(1, self.key_rounds):  
-            subMatrix = self.sbox.matrix_Sub(matrix)  # Apply SubBytes                        
-            shift_rows = self.shift_rows(subMatrix)  # Apply ShiftRows                        
+            state = self.sbox.matrix_Sub(state)  # Apply SubBytes                        
+            state = self.shift_rows(state)  # Apply ShiftRows                        
             if i != self.key_rounds:  # Only apply MixColumns in intermediate rounds
-                mix_col = self.mix_cols(shift_rows)  # Apply MixColumns                
-            else:                
-                mix_col = shift_rows  # Skip MixColumns in the final round                            
+                state = self.mix_cols(state)  # Apply MixColumns                                                       
             # Add the round key at the end of each round (except for the final round)
-            matrix = self.add_round_keys(mix_col, keys[i])  # Use the i-th round key from expanded key schedule            
+            state = self.add_round_keys(state, keys[i])  # Use the i-th round key from expanded key schedule                        
         # Final round (no MixColumns)
-        subMatrix = self.sbox.matrix_Sub(matrix)  # Apply SubBytes
-        shift_rows = self.shift_rows(subMatrix)  # Apply ShiftRows
-        cipher_text = self.add_round_keys(shift_rows, keys[self.key_rounds])  # Final AddRoundKey
+        state = self.sbox.matrix_Sub(state)  # Apply SubBytes
+        state = self.shift_rows(state)  # Apply ShiftRows
+        cipher_text = self.add_round_keys(state, keys[self.key_rounds])  # Final AddRoundKey
            
         return cipher_text                                                                                    
