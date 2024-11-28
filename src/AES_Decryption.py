@@ -57,7 +57,7 @@ class Decryption:
         return result 
 
     def Decryption(self, ciphertext: np.ndarray, key):
-         
+        key = self.functions.hash_key(key)
         if len(ciphertext.flatten()) > 16:
             decrpt = []
             for matrix in ciphertext:     

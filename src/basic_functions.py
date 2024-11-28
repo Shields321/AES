@@ -1,7 +1,9 @@
 import numpy as np
+import hashlib as hash
 class basic_functions():
     def __init__(self,mode = "encrypt") -> None:
         self.mode = mode
+        self.hash = hash
         pass
     
     def is_hex(self,value):                                 
@@ -116,9 +118,18 @@ class basic_functions():
         return segments
     
     def concatText(self ,*args):
-        return np.concatenate(args,axis = 1) 
-             
+        return np.concatenate(args,axis = 1)         
+
+    def hash_key(self, key):
+        """
+        Hash the key (which could be a list) into a fixed-length AES-compatible key as a string.
         
+        :param key: The key, which might be a list of strings or byte-like objects.
+        :return: A hashed key in hexadecimal string format (64 hex characters for AES-256).
+        """
+        key = self.hash.md5(key.encode()).digest()
+        return bytearray(key)
+                 
     def to_text(self ,*args):        
         matrixs = np.array(args)
         convertedText = []

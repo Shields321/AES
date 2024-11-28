@@ -67,7 +67,8 @@ class Encryption:
             b = b//2 #left shift
         return result     
                                        
-    def Encryption(self,plaintext,key):
+    def Encryption(self,plaintext,key):        
+        key = self.functions.hash_key(key)
         val, val2 = self.functions.to_hex(plaintext, key)
         if len(val) == 16:
             cipher_text = self.EncrptionProcess(val, val2)
@@ -76,7 +77,7 @@ class Encryption:
             cipher_text = self.EncrptionProcess(val, val2)
         elif len(val) > 16:
             val = self.functions.overflow(val)
-            cipher = []
+            cipher = []        
             for matrix in val:
                 cipher.append(self.EncrptionProcess(matrix, val2))
             cipher_text = self.functions.concatText(cipher)
