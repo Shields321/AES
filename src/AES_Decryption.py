@@ -63,11 +63,12 @@ class Decryption:
             for matrix in ciphertext:     
                 decrpt.append(self.DecryptionProcess(matrix, key))
             state = self.functions.concatText(decrpt)
+            return self.functions.to_text(*state)
         elif len(ciphertext.flatten()) == 16:
             state = self.DecryptionProcess(ciphertext, key)
+            return self.functions.to_text(state)
         else:
-            raise ValueError("CipherText is not 16 bytes of length make sure its a correct encryption ciphertext")
-        return state
+            raise ValueError("CipherText is not 16 bytes of length make sure its a correct encryption ciphertext")                
     
     def DecryptionProcess(self, ciphertext: np.ndarray, key):
         matrix = ciphertext

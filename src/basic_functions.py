@@ -119,5 +119,12 @@ class basic_functions():
         return np.concatenate(args,axis = 1) 
              
         
-    def to_text(self ,*args):
-        pass
+    def to_text(self ,*args):        
+        matrixs = np.array(args)
+        convertedText = []
+        for matrix in matrixs:
+            for row in matrix.T:
+                for col in row:
+                    convertedText.append(int(col,16))      
+        text = ''.join(chr(char) for char in convertedText)
+        return text

@@ -3,9 +3,10 @@ from tkinter import ttk
 
 AESMODE = 128
 aes = AES(AESMODE=AESMODE)
-key = "Thats my Kung Fu"
+text = input("Enter the text you wish to encrypt: ")
+key = input("Enter the Key for the encryption: ")
 
-cyphertext = aes.Encryption("Two One Nine Two1",key)
+cyphertext = aes.Encryption(text,key)
 print('Encrypted text')
 print(cyphertext) 
 
