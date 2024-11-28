@@ -87,8 +87,9 @@ class basic_functions():
             if len(matrix_data) == 16:
                 vals.append(matrix_data)
                 matrix_data = [] 
-        if matrix_data:
-            vals.append(self.padding(matrix_data))                                           
+        if len(matrix_data) < 16:
+            vals.append(self.padding(matrix_data)) 
+        return vals                                          
    
     def hex_to_matrix(self,*args):
         """
@@ -113,5 +114,10 @@ class basic_functions():
                 return np.array(matrix)                                    
             segments.append(np.array(matrix))            
         return segments
+    
+    def concatText(self ,*args):
+        return np.concatenate(args,axis = 1) 
+             
+        
     def to_text(self ,*args):
         pass

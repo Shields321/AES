@@ -69,7 +69,21 @@ class Encryption:
                                        
     def Encryption(self,plaintext,key):
         val, val2 = self.functions.to_hex(plaintext, key)
-        matrix, matrix2= self.functions.hex_to_matrix(val,val2)            
+        if len(val) == 16:
+            cipher_text = self.EncrptionProcess(val, val2)
+        elif len(val) < 16:
+            val = self.functions.padding(val)
+            cipher_text = self.EncrptionProcess(val, val2)
+        elif len(val) > 16:
+            val = self.functions.overflow(val)
+            cipher = []
+            for matrix in val:
+                cipher.append(self.EncrptionProcess(matrix, val2))
+            cipher_text = self.functions.concatText(cipher)
+        return cipher_text
+             
+    def EncrptionProcess(self,plaintext,key):   
+        matrix, matrix2= self.functions.hex_to_matrix(plaintext,key)            
         keys = self.KeyGen.key_expansion(matrix2)    
         print("original matrix")
         print(matrix)                           
@@ -88,4 +102,4 @@ class Encryption:
         state = self.shift_rows(state)  # Apply ShiftRows
         cipher_text = self.add_round_keys(state, keys[self.key_rounds])  # Final AddRoundKey
            
-        return cipher_text                                                                                    
+        return cipher_text                                                                       

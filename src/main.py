@@ -5,7 +5,7 @@ AESMODE = 128
 aes = AES(AESMODE=AESMODE)
 key = "Thats my Kung Fu"
 
-cyphertext = aes.Encryption("Two One Nine Two",key)
+cyphertext = aes.Encryption("Two One Nine Two1",key)
 print('Encrypted text')
 print(cyphertext) 
 

@@ -56,14 +56,21 @@ class Decryption:
             b = b//2 #left shift
         return result 
 
-    def Decryption(self, ciphertext, key):
-        # Convert cipher text to matrix if necessary
-        if isinstance(ciphertext, np.ndarray):
-            matrix = ciphertext
-        elif not self.functions.is_hex(ciphertext):
-            val = self.functions.to_hex(ciphertext)
-            matrix = self.functions.hex_to_matrix(val)
-        
+    def Decryption(self, ciphertext: np.ndarray, key):
+         
+        if len(ciphertext.flatten()) > 16:
+            decrpt = []
+            for matrix in ciphertext:     
+                decrpt.append(self.DecryptionProcess(matrix, key))
+            state = self.functions.concatText(decrpt)
+        elif len(ciphertext.flatten()) == 16:
+            state = self.DecryptionProcess(ciphertext, key)
+        else:
+            raise ValueError("CipherText is not 16 bytes of length make sure its a correct encryption ciphertext")
+        return state
+    
+    def DecryptionProcess(self, ciphertext: np.ndarray, key):
+        matrix = ciphertext
         # Convert key to matrix if necessary
         if isinstance(key, np.ndarray):
             matrix2 = key
@@ -75,10 +82,10 @@ class Decryption:
         self.keys = self.key_exp.key_expansion(matrix2)                   
         
         # Initial Add Round Key
-        state = self.add_round_keys(matrix, self.keys[-1])        
+        state = self.add_round_keys(matrix, self.keys[self.key_rounds])        
         
         # Perform rounds
-        for round_num in range(9, 0, -1):  # Decrypting rounds in reverse order
+        for round_num in range(self.key_rounds-1, 0, -1):  # Decrypting rounds in reverse order
             state = self.invshift(state)
             state = self.invSubBytes(state)   
             state = self.add_round_keys(state, self.keys[round_num])   
@@ -91,4 +98,5 @@ class Decryption:
         state = self.add_round_keys(state, self.keys[0])        
         
         return state
+        
 
