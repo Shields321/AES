@@ -7,7 +7,8 @@ class Decryption:
         self.sbox = SBOX()
         self.functions = basic_functions(mode="decrypt")
         self.keys = []
-        self.key_rounds = {128: 10, 192: 12, 256: 14}[AESMODE]
+        self.AESMODE = AESMODE
+        self.key_rounds = {128: 10, 192: 12, 256: 14}[self.AESMODE]
         self.key_exp = Key_Expansion(self.key_rounds)
 
     def add_round_keys(self, M1, M2):
@@ -57,7 +58,7 @@ class Decryption:
         return result 
 
     def Decryption(self, ciphertext: np.ndarray, key):
-        key = self.functions.hash_key(key)
+        key = self.functions.hash_key(key,self.AESMODE)
         if len(ciphertext.flatten()) > 16:
             decrpt = []
             for matrix in ciphertext:     

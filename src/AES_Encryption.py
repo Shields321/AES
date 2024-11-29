@@ -21,7 +21,8 @@ class Encryption:
         self.functions = basic_functions()           
         self.words = [] 
         self.keys = []
-        self.key_rounds = {128:10, 192:12, 256:14}[AESMODE] 
+        self.AESMODE = AESMODE
+        self.key_rounds = {128:10, 192:12, 256:14}[self.AESMODE] 
         self.KeyGen = Key_Expansion(key_size=self.key_rounds)                          
                         
     def add_round_keys(self,M1,M2):
@@ -68,7 +69,7 @@ class Encryption:
         return result     
                                        
     def Encryption(self,plaintext,key):        
-        key = self.functions.hash_key(key)
+        key = self.functions.hash_key(key,self.AESMODE)
         val, val2 = self.functions.to_hex(plaintext, key)
         if len(val) == 16:
             cipher_text = self.EncrptionProcess(val, val2)
@@ -85,9 +86,7 @@ class Encryption:
              
     def EncrptionProcess(self,plaintext,key):   
         matrix, matrix2= self.functions.hex_to_matrix(plaintext,key)            
-        keys = self.KeyGen.key_expansion(matrix2)    
-        print("original matrix")
-        print(matrix)                           
+        keys = self.KeyGen.key_expansion(matrix2)                                      
         # Initial key round addition
         state = self.add_round_keys(matrix, keys[0])  # First round key addition                        
         # Loop through all the rounds

@@ -120,14 +120,15 @@ class basic_functions():
     def concatText(self ,*args):
         return np.concatenate(args,axis = 1)         
 
-    def hash_key(self, key):
-        """
-        Hash the key (which could be a list) into a fixed-length AES-compatible key as a string.
-        
-        :param key: The key, which might be a list of strings or byte-like objects.
-        :return: A hashed key in hexadecimal string format (64 hex characters for AES-256).
-        """
-        key = self.hash.md5(key.encode()).digest()
+    def hash_key(self, key, AESMODE):   
+        if AESMODE == 128:     
+            key = self.hash.md5(key.encode()).digest()
+        elif AESMODE == 192:
+            key = self.hash.sha256(key.encode()).digest()   
+            key = key[:24] 
+            pass
+        elif AESMODE == 256:
+            key = self.hash.sha256(key.encode()).digest()            
         return bytearray(key)
                  
     def to_text(self ,*args):        
