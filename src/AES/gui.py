@@ -5,12 +5,11 @@ class AES_GUI:
     def __init__(self) -> None:        
         self.root = Tk()
         self.root.title("AES Encryption and Decryption")
-        self.root.geometry("400x300")  # Set a fixed window size for better layout control
-        self.values = []
+        self.root.geometry("400x300")  # Set a fixed window size for better layout control        
     
-    def create_button(self, text, command=None):
+    def create_button(self, text, command=None,row=4,pady=10,padx=10):
         btn = ttk.Button(self.root, text=text, command=command)
-        btn.grid(row=4, column=0, columnspan=2, pady=10, padx=10)
+        btn.grid(row=row, column=0, columnspan=2, pady=pady, padx=padx)
 
     def create_text(self, width=10):
         entry = ttk.Entry(self.root, width=width)
@@ -36,20 +35,26 @@ class AES_GUI:
         # Create label and text entry for encryption key
         self.create_label("Encryption Key:")
         self.key_entry = self.create_text(width=50)
+                
+        self.create_button("Encrypt", command=self.aes_encryption,pady=10,padx=10)
         
-        # Create the submit button
-        self.create_button("Encrypt", command=self.aes_process)
-    
-    def aes_process(self):
+        self.create_button("Decrypt", command=self.aes_decryption,row=6,pady=10,padx=10)
+        
+    def aes_encryption(self):
         aes_mode = int(self.get_text(self.AESMODE_entry))
         self.aes = AES(aes_mode)
-        cyphertext = self.aes.Encryption(self.get_text(self.text_entry), self.get_text(self.key_entry))
-        plaintext = self.aes.Decryption(cyphertext, self.get_text(self.key_entry))
+        self.cyphertext = self.aes.Encryption(self.get_text(self.text_entry), self.get_text(self.key_entry))
         
         print("Encrypted Text:")
-        print(cyphertext)
+        print(self.cyphertext)
+        
+    def aes_decryption(self):
+        aes_mode = int(self.get_text(self.AESMODE_entry))
+        self.aes = AES(aes_mode)        
+        self.plaintext = self.aes.Decryption(self.cyphertext, self.get_text(self.key_entry))
+                
         print("\nDecrypted Text:")
-        print(plaintext)
+        print(self.plaintext)
         
     def run(self):
         self.root.mainloop()

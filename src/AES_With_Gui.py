@@ -1,4 +1,4 @@
-from gui import AES_GUI
+from AES.gui import AES_GUI
 
 gui = AES_GUI()
 
