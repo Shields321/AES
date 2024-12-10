@@ -1,4 +1,4 @@
-from AES import AES
+from AES.AES import AES
 from tkinter import ttk
 
 AESMODE = None

@@ -1,5 +1,5 @@
 from tkinter import Tk, ttk
-from AES import AES
+from AES.AES import AES
 
 class AES_GUI:
     def __init__(self) -> None:        
