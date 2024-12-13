@@ -1,5 +1,4 @@
 from AES.AES import AES
-from tkinter import ttk
 
 AESMODE = None
 while True:

@@ -122,7 +122,8 @@ class basic_functions():
 
     def hash_key(self, key, AESMODE):   
         if AESMODE == 128:     
-            key = self.hash.md5(key.encode()).digest()
+            key = self.hash.sha256(key.encode()).digest()
+            key = key[:16] 
         elif AESMODE == 192:
             key = self.hash.sha256(key.encode()).digest()   
             key = key[:24] 
